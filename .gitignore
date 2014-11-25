@@ -1,0 +1,13 @@
+# Directories #
+build/
+target/
+RemoteSystemTempFiles
+
+# Eclipse #
+.metadata
+.project
+.settings/
+.classpath
+
+
+
