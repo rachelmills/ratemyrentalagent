@@ -9,9 +9,11 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.ratemyrealestaterental.web.dao.FormValidationGroup;
 import com.ratemyrealestaterental.web.dao.User;
 import com.ratemyrealestaterental.web.service.UsersService;
 
@@ -32,7 +34,8 @@ public class LoginController {
 	}
 
 	@RequestMapping(value = "/createuser", method = RequestMethod.POST)
-	public String createUser(@Valid User user, BindingResult result) {
+	// @Validated is an annotation for using a validation group at the web layer
+	public String createUser(@Validated(FormValidationGroup.class) User user, BindingResult result) {
 		if (result.hasErrors()) {
 			return "newuser";
 		}

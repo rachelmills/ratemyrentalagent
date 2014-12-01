@@ -38,6 +38,10 @@ public class RatingsService {
 	public Rating getRating(int agentId, int userId) {
 		return ratingsDAO.getRating(agentId, userId);
 	}
+	
+	public boolean deleteRating(int agentId, int userId) {
+		return ratingsDAO.delete(agentId, userId);
+	}
 
 	@Autowired
 	public void setRatingsDAO(RatingsDAO ratingsDAO) {

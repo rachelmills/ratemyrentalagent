@@ -10,7 +10,7 @@
 		<security:authentication-provider>
 			<security:jdbc-user-service data-source-ref="dataSource"
 				users-by-username-query="select username, password, enabled from user where binary username = ?"
-				authorities-by-username-query="select username, authority from authorities where binary username = ?"
+				authorities-by-username-query="select username, authority from user where binary username = ?"
 				id="jdbcUserService" />
 			<security:password-encoder ref="passwordEncoder"></security:password-encoder>
 		</security:authentication-provider>
@@ -26,6 +26,7 @@
 		<security:intercept-url pattern="/createblogentry" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/userratings" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/editrating" access="isAuthenticated()"/>
+		<security:intercept-url pattern="/deleterating" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/test" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/search" access="permitAll" />
 		<security:intercept-url pattern="/agents" access="permitAll" />

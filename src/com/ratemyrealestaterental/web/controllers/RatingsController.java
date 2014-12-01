@@ -55,9 +55,7 @@ public class RatingsController {
 		List<Rating> ratings = ratingsService.getRatingsForUser(id);
 
 		for (Rating rating : ratings) {
-			Agent agent = new Agent();
-			agent.setId(rating.getAgentID());
-			agent.setAgentName(agentsService.getAgentName(rating.getAgentID()));
+			Agent agent = agentsService.getAgent(rating.getAgentID());
 			rating.setAgent(agent);
 		}
 
@@ -96,7 +94,7 @@ public class RatingsController {
 		} else {
 			rating.setId(ratingId);
 			ratingsService.updateRating(rating);
-			return "createrating";
+			return "ratingupdated";
 		}
 	}
 	
@@ -107,6 +105,12 @@ public class RatingsController {
 		Agent agent = agentsService.getAgent(agentId);
 		model.addAttribute("agent", agent);
 		return "createrating";
+	}
+	
+	@RequestMapping("/deleterating")
+	public String deleteRating(@RequestParam("agentid") Integer agentId, @RequestParam("userid") Integer userId, Model model) {
+		ratingsService.deleteRating(agentId, userId);
+		return "ratingdeleted";
 	}
 
 	@Autowired

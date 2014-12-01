@@ -414,6 +414,7 @@ html,body {
 	/* background-color: white; */
 	width: 110px;
 	font-size: small;
+	text-align: center;
 }
 
 #wrapper #main #table th {

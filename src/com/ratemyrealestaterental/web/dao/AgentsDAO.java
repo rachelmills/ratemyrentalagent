@@ -32,6 +32,7 @@ public class AgentsDAO {
 
 				agent.setId(rs.getInt("id"));
 				agent.setAgentName(rs.getString("agent_name"));
+				agent.setSuburb(rs.getString("suburb"));
 
 				return agent;
 			}

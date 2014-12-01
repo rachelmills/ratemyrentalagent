@@ -16,7 +16,6 @@ public class AgentsService {
 	public List<Agent> getCurrent() {
 		return agentsDAO.getAgents();
 	}
-
 	
 	public void createAgent(Agent agent) {
 		agentsDAO.create(agent);

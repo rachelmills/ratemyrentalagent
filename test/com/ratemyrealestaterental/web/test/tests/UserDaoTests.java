@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.HibernateException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ratemyrealestaterental.web.dao.Rating;
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import com.ratemyrealestaterental.web.dao.User;
 import com.ratemyrealestaterental.web.dao.UsersDAO;
 
@@ -33,25 +34,46 @@ public class UserDaoTests {
 
 	@Autowired
 	private DataSource dataSource;
+	
+	private User user1 = new User("rachel1", "hello", true, "user");
+	private User user2 = new User("rachel2", "hello", true, "admin");
 
 	@Before
 	public void init() {
 		JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 		jdbc.execute("delete from rating");
 		jdbc.execute("delete from user");
-		jdbc.execute("delete from authorities");
 	}
 
 	@Test
 	public void testCreateUser() {
-		User user = new User("rachel", "hello", true, "user");
-		assertTrue(usersDao.create(user));
+		usersDao.create(user1);
 
 		List<User> users = usersDao.getAllUsers();
 		assertEquals(1, users.size());
 
-		assertTrue("User should exists", usersDao.exists(user.getUsername()));
+		assertTrue("User should exists", usersDao.exists(user1.getUsername()));
 
-		assertEquals(user, users.get(0));
+		assertEquals(user1, users.get(0));
+	}
+	
+	@Test
+	public void getAllUsers() {
+		usersDao.create(user1);
+		
+		usersDao.create(user2);
+		
+		List<User> users = usersDao.getAllUsers();
+		
+		assertTrue("Two users should have been retrieved", users.size() == 2);
+		assertEquals(user1, users.get(0));
+		assertEquals(users.get(1).getUsername(), "rachel2");
+	}
+	
+	
+	@Test(expected=HibernateException.class)
+	public void testUnableToCreateDuplicateUser() {
+		usersDao.create(user1);
+		usersDao.create(user1);
 	}
 }

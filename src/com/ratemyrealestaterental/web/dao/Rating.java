@@ -1,13 +1,29 @@
 package com.ratemyrealestaterental.web.dao;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+// this annotation is to tell hibernate this is to be considered as a bean, 
+//and which table to map to with primary key
+@Entity
+@Table(name="rating")
 public class Rating {
 
+	@Id
 	private int id;
+	
+	@Transient
+	private Agent agent;
+	
+	// not required as same name as table column
+	@Column(name="agentID")
 	private int agentID;
 	private int userID;
 	private int rating;
-	private Agent agent;
-
+	
 	public Rating() {
 	}
 
@@ -67,7 +83,8 @@ public class Rating {
 	@Override
 	public String toString() {
 		return "Rating [id=" + id + ", agentID=" + agentID + ", userID="
-				+ userID + ", rating=" + rating + ", agent=" + agent + "]";
+				+ userID + ", rating=" + rating + ", agent=" + agent + 
+				"]";
 	}
 
 }

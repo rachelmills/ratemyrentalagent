@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,11 +17,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component("usersDao")
 public class UsersDAO {
 
 	private NamedParameterJdbcTemplate jdbc;
 	
+	@Autowired
+	private SessionFactory sessionFactory;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -29,6 +34,10 @@ public class UsersDAO {
 		this.jdbc = new NamedParameterJdbcTemplate(jdbc);
 	}
 
+	public Session session() {
+		return sessionFactory.getCurrentSession();
+	}
+	
 	public List<User> getUsers() {
 
 		return jdbc.query("select * from user", new RowMapper<User>() {
@@ -44,23 +53,12 @@ public class UsersDAO {
 		});
 	}
 
-	@Transactional()
-	public boolean create(User user) {
-
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("username", user.getUsername());
-		params.addValue("password", passwordEncoder.encode(user.getPassword()));
-		params.addValue("enabled", user.isEnabled());
-		params.addValue("authority", user.getAuthority());
-
-		jdbc.update(
-				"insert into user (username, password, enabled) values (:username, :password, :enabled)",
-				params);
-		return jdbc
-				.update("insert into authorities (username, authority) values (:username, :authority)",
-						params) == 1;
+	@Transactional
+	public void create(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		session().save(user);
 	}
-
+	
 	public boolean delete(int id) {
 		MapSqlParameterSource params = new MapSqlParameterSource("id", id);
 
@@ -100,8 +98,10 @@ public class UsersDAO {
 				new MapSqlParameterSource("username", username), Integer.class) > 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<User> getAllUsers() {
-		return jdbc.query("select * from user, authorities where user.username = authorities.username", BeanPropertyRowMapper.newInstance(User.class));
+		return session().createQuery("from User").list();
+		//return jdbc.query("select * from user", BeanPropertyRowMapper.newInstance(User.class));
 	}
 
 }

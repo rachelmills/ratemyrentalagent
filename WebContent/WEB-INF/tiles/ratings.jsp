@@ -7,6 +7,7 @@
 		<table id="table">
 			<tr>
 				<th>Agency Name</th>
+				<th>Agency Suburb</th>
 				<th>Rating (out of 5)</th>
 			</tr>
 			<c:choose>
@@ -14,10 +15,11 @@
 					<c:forEach var="rating" items="${ratings}">
 						<tr>
 							<td id="first"><c:out value="${rating.agent.agentName}"></c:out></td>
+							<td id="first"><c:out value="${rating.agent.suburb}"></c:out></td>
 							<td id="last"><c:out value="${rating.rating}"></c:out></td>
 							<td id="other"><a
-								href="${pageContext.request.contextPath}/editrating?agentid=${rating.agent.id}&userid=${id}">Edit
-									or delete</a></td>
+								href="${pageContext.request.contextPath}/editrating?agentid=${rating.agent.id}&userid=${id}">Edit</a></td>
+									<td id="other"><a href="${pageContext.request.contextPath}/deleterating?agentid=${rating.agent.id}&userid=${id}">Delete</a></td>
 
 						</tr>
 

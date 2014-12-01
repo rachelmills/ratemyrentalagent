@@ -1,23 +1,36 @@
 package com.ratemyrealestaterental.web.dao;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+@Entity
+@Table(name="user")
 public class User {
 
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	private int id;
-	@NotBlank
-	@Size(min=7, max=15)
-	@Pattern(regexp="^\\w{7,}$")
+	
+	@NotBlank(groups={PersistenceValidationGroup.class, FormValidationGroup.class})
+	@Size(min=7, max=15, groups={PersistenceValidationGroup.class, FormValidationGroup.class})
+	@Pattern(regexp="^\\w{7,}$", groups={PersistenceValidationGroup.class, FormValidationGroup.class})
 	private String username;
 	
-	@NotBlank
-	@Size(min=5, max=10)
-	@Pattern(regexp="^\\S+$")
+	@NotBlank(groups={PersistenceValidationGroup.class, FormValidationGroup.class})
+	@Size(min=5, max=10, groups={FormValidationGroup.class})
+	@Pattern(regexp="^\\S+$", groups={FormValidationGroup.class})
 	private String password;
+	
 	private boolean enabled = false;
+	
 	private String authority;
 
 	public User() {

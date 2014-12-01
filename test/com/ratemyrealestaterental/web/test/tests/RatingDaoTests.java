@@ -1,6 +1,7 @@
 package com.ratemyrealestaterental.web.test.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class RatingDaoTests {
 
 	@Autowired
 	private RatingsDAO ratingsDao;
-	
+
 	@Autowired
 	private UsersDAO usersDao;
 
@@ -43,38 +44,57 @@ public class RatingDaoTests {
 		JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 		jdbc.execute("delete from rating");
 		jdbc.execute("delete from user");
-		jdbc.execute("delete from authorities");
 	}
 
 	@Test
 	public void testCreateRating() {
-		usersDao.create(new User("rachel", "hello", true, "user"));
-		
+		usersDao.create(new User("rachel1", "hello", true, "user"));
+
 		int agentId = 1;
 		int rating = 1;
-		int userId = usersDao.getUserIdByUsername("rachel");
-		
+		int userId = usersDao.getUserIdByUsername("rachel1");
+
 		Rating rating1 = new Rating(agentId, userId, rating);
-		
-		
+
 		assertTrue(ratingsDao.create(rating1));
 	}
-	
+
 	@Test
-	public void testGetRatingsForUser() {
-		usersDao.create(new User("rachel", "hello", true, "user"));
+	public void testGetRatings() {
+		usersDao.create(new User("rachel1", "hello", true, "user"));
 		int agentId = 1;
 		int rating = 1;
-		
-		Rating rating1 = new Rating(agentId, usersDao.getUserIdByUsername("rachel"), rating);
-		Rating rating2 = new Rating(agentId+1, usersDao.getUserIdByUsername("rachel"), rating+1);
-		
+
+		Rating rating1 = new Rating(agentId,
+				usersDao.getUserIdByUsername("rachel1"), rating);
+		Rating rating2 = new Rating(agentId + 1,
+				usersDao.getUserIdByUsername("rachel1"), rating + 1);
+
 		ratingsDao.create(rating1);
 		ratingsDao.create(rating2);
-		
+
 		List<Rating> ratings = ratingsDao.getRatings();
-		
+
 		assertEquals(2, ratings.size());
 	}
 	
+	@Test
+	public void testDeleteRating() {
+		usersDao.create(new User("rachel1", "hello", true, "user"));
+		
+		int agentId = 1;
+		int ratingId = 1;
+		
+		int userId = usersDao.getUserIdByUsername("rachel1");
+
+		Rating rating1 = new Rating(agentId, userId, ratingId);
+		assertTrue(ratingsDao.create(rating1));
+		
+		Rating ratings = ratingsDao.getRating(agentId, userId);
+
+		assertTrue(ratings.getRating() == 1);
+		
+		assertTrue(ratingsDao.delete(agentId, userId));
+	}
+
 }

@@ -10,10 +10,9 @@
 	<context:component-scan base-package="com.ratemyrealestaterental.web.controllers">
 	</context:component-scan>
 	<mvc:annotation-driven></mvc:annotation-driven>
-	<!-- <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"> 
-		<property name="prefix" value="/WEB-INF/jsps/"></property> <property name="suffix" 
-		value=".jsp"></property> </bean> -->
+
 	<mvc:resources location="/resources/" mapping="/static/**"></mvc:resources>
+	
 	<bean id="messageSource"
 		class="org.springframework.context.support.ResourceBundleMessageSource">
 		<property name="basename"

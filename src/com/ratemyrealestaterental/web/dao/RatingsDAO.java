@@ -11,7 +11,9 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component("ratingsDao")
 public class RatingsDAO {
 
@@ -28,6 +30,7 @@ public class RatingsDAO {
 	public Session session() {
 		return sessionFactory.getCurrentSession();
 	}
+	
 //	public List<Rating> getRatings() {
 //
 //		return jdbc.query("select * from rating", new RatingRowMapper());
@@ -63,10 +66,12 @@ public class RatingsDAO {
 		return jdbc.update("update rating set rating = :rating where id = :id", params) == 1;
 	}
 
-	public boolean delete(int id) {
-		MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+	public boolean delete(int agentId, int userId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("agentId", agentId);
+		params.addValue("userId", userId);
 
-		return jdbc.update("delete from offers where id=:id", params) == 1;
+		return jdbc.update("delete from rating where agentID=:agentId and userID=:userId", params) == 1;
 	}
 
 	public Rating getRating(int agentId, int userId) {

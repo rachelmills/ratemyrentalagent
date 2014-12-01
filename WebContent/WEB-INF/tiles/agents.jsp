@@ -17,7 +17,6 @@
 				<p>We have no agents of that name. Please add the agent or
 					search again.</p>
 				<sec:authorize access="isAuthenticated()">
-
 					<a href="${pageContext.request.contextPath}/createagent">Add
 						agent</a>
 				</sec:authorize>

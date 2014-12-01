@@ -27,15 +27,6 @@ public class HomeController {
 
 	@RequestMapping("/")
 	public String showHome(HttpServletRequest request, Model model, Principal principal) {
-//		HttpSession session = request.getSession();
-//		logger.info("showing home page");
-//		out.println("<p>(Session creation time is "
-//				+ new Date(session.getCreationTime()) + ")</p>");
-//		out.println("<p>(Session last access time is "
-//				+ new Date(session.getLastAccessedTime()) + ")</p>");
-//		out.println("<p>(Session max inactive interval  is "
-//				+ session.getMaxInactiveInterval() + " seconds)</p>");
-
 		boolean hasRatings = false;
 		if (null != principal) {
 			hasRatings = ratingsService.hasRatings(principal.getName());
@@ -46,6 +37,4 @@ public class HomeController {
 		model.addAttribute("hasRatings", hasRatings);
 		return "home";
 	}
-	
-
 }

@@ -38,18 +38,14 @@
 						<td><label for=5>Excellent</label></td>
 					</tr>
 				</table>
-				<input type="hidden" name="agentID" value="${agent.id}">
-				<p>${rating.id}</p>
-
+				<input type="hidden" name="agentID" value="${agent.id}"> <input
+					type="hidden" name="ratingID" value="${rating.id}">
 				<%-- 	<input type="hidden" name="userID" value="${user.id}"> --%>
-				<c:if test="${rating.id > 0}">
-					<input type="hidden" name="ratingID" value="${rating.id}">
+				<c:if test="${rating.id eq null}">
 					<input type="submit" value="RATE AGENT">
-					<p>hello1</p>
 				</c:if>
-				<c:if test="${rating.id == 0}">
+				<c:if test="${rating.id > 0}">
 					<input type="submit" name="edit" value="Confirm edit">
-					<p>hello2</p>
 				</c:if>
 			</div>
 		</form:form>
