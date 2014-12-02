@@ -43,6 +43,8 @@ public class RatingsController {
 			sum += rating.getRating();
 		}
 		double averageRating = getAverageRating(sum, count);
+		model.addAttribute("agentname", agentsService.getAgent(id).getAgentName());
+		model.addAttribute("agentsuburb", agentsService.getAgent(id).getSuburb());
 		model.addAttribute("ratings", ratings);
 		model.addAttribute("averageRating", averageRating);
 		model.addAttribute("id", id);
