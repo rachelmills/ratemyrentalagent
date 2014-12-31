@@ -6,15 +6,31 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+@Repository
+@Transactional
 @Component("agentsDao")
 public class AgentsDAO {
+	
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	public Session session() {
+		return sessionFactory.getCurrentSession();
+	}
 
 	private NamedParameterJdbcTemplate jdbc;
 
@@ -23,86 +39,56 @@ public class AgentsDAO {
 		this.jdbc = new NamedParameterJdbcTemplate(jdbc);
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Agent> getAgents() {
-
-		return jdbc.query("select * from agent", new RowMapper<Agent>() {
-
-			public Agent mapRow(ResultSet rs, int rowNum) throws SQLException {
-				Agent agent = new Agent();
-
-				agent.setId(rs.getInt("id"));
-				agent.setAgentName(rs.getString("agent_name"));
-				agent.setSuburb(rs.getString("suburb"));
-
-				return agent;
-			}
-		});
+		return session().createQuery("from Agent").list();
 	}
 
-	public boolean create(Agent agent) {
+	public void create(Agent agent) {
 		agent.setSuburb(agent.getSuburb().toUpperCase());
-
-		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
-				agent);
-
-		return jdbc
-				.update("insert into agent (agent_name, suburb) values (:agentName, :suburb)",
-						params) == 1;
+		session().save(agent);
 	}
 
-	public boolean delete(int id) {
-		MapSqlParameterSource params = new MapSqlParameterSource("id", id);
-
-		return jdbc.update("delete from offers where id=:id", params) == 1;
+	public void delete(int id) {
+		Criteria crit = session().createCriteria(Agent.class);
+		crit.add(Restrictions.idEq(id));
+		Agent agent = (Agent) crit.uniqueResult();
+		session().delete(agent);
 	}
 
 	public Agent getAgent(int id) {
-
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("id", id);
-
-		return jdbc.queryForObject("select * from agent where id=:id", params,
-				new RowMapper<Agent>() {
-
-					public Agent mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						Agent agent = new Agent();
-
-						agent.setId(rs.getInt("id"));
-						agent.setAgentName(rs.getString("agent_name"));
-						agent.setSuburb(rs.getString("suburb"));
-
-						return agent;
-					}
-				});
+		Criteria crit = session().createCriteria(Agent.class);
+		crit.add(Restrictions.idEq(id));
+		return (Agent) crit.uniqueResult();
 	}
 
 	public String getAgentName(int agentId) {
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("agentId", agentId);
-		return jdbc.queryForObject(
-				"select agent_name from agent where id = :agentId", params,
-				String.class);
+		Query query = session().createQuery("select agentName from Agent where id = :id");
+		query.setParameter("id", agentId);
+		return (String) query.uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Agent> search(String name) {
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("name", name.toUpperCase());
-
-		return jdbc.query(
-				"select * from agent where upper(agent_name) = :name", params,
-				new RowMapper<Agent>() {
-
-					public Agent mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						Agent agent = new Agent();
-						agent.setId(rs.getInt("id"));
-						agent.setAgentName(rs.getString("agent_name"));
-						agent.setSuburb(rs.getString("suburb"));
-						return agent;
-					}
-
-				});
+		Criteria crit = session().createCriteria(Agent.class);
+		crit.add(Restrictions.eq("agentName", name));
+		List<Agent> agents = crit.list();
+		return agents;
 	}
+	
+	public boolean exists(String agentName, String suburb) {
+		Criteria crit = session().createCriteria(Agent.class);
+		crit.add(Restrictions.eq("agentName", agentName));
+		crit.add(Restrictions.eq("suburb", suburb));
+		Agent agent = (Agent) crit.uniqueResult();
+		return agent != null;
+	}
+
+	public String getSuburb(int agentId) {
+		Query query = session().createQuery("select suburb from Agent where id = :id");
+		query.setParameter("id", agentId);
+		return (String) query.uniqueResult();
+	}
+
 
 }

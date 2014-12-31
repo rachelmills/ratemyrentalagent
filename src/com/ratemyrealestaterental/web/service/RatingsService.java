@@ -24,7 +24,7 @@ public class RatingsService {
 
 	@Secured({ "ROLE_USER", "ROLE_ADMIN" })
 	public void createRating(Rating rating) {
-		ratingsDAO.create(rating);
+		ratingsDAO.saveOrUpdate(rating);
 	}
 
 	public List<Rating> getRatingsForAgent(int agentId) {
@@ -32,20 +32,15 @@ public class RatingsService {
 	}
 
 	public List<Rating> getRatingsForUser(int userId) {
-		return ratingsDAO.getRatingsForUser(userId);
+		return ratingsDAO.getRatingsForUser(usersDAO.getUser(userId));
 	}
 	
 	public Rating getRating(int agentId, int userId) {
-		return ratingsDAO.getRating(agentId, userId);
+		return ratingsDAO.getRating(agentId, usersDAO.getUser(userId));
 	}
 	
 	public boolean deleteRating(int agentId, int userId) {
-		return ratingsDAO.delete(agentId, userId);
-	}
-
-	@Autowired
-	public void setRatingsDAO(RatingsDAO ratingsDAO) {
-		this.ratingsDAO = ratingsDAO;
+		return ratingsDAO.delete(agentId, usersDAO.getUser(userId));
 	}
 
 	public boolean hasRatings(String name) {
@@ -53,7 +48,7 @@ public class RatingsService {
 			return false;
 		}
 		int userId = usersDAO.getUserIdByUsername(name);
-		List<Rating> ratings = ratingsDAO.getRatingsForUser(userId);
+		List<Rating> ratings = ratingsDAO.getRatingsForUser(usersDAO.getUser(userId));
 		if (ratings.size() == 0) {
 			return false;
 		}
@@ -61,8 +56,14 @@ public class RatingsService {
 	}
 
 	public void updateRating(Rating rating) {
-		ratingsDAO.update(rating);
-		
+		ratingsDAO.saveOrUpdate(rating);
 	}
 
+	@Autowired
+	public void setRatingsDAO(RatingsDAO ratingsDAO) {
+		this.ratingsDAO = ratingsDAO;
+	}
+
+
+	
 }

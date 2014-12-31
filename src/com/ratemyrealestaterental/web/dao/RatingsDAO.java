@@ -4,15 +4,18 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+@Repository
 @Transactional
 @Component("ratingsDao")
 public class RatingsDAO {
@@ -31,64 +34,62 @@ public class RatingsDAO {
 		return sessionFactory.getCurrentSession();
 	}
 	
-//	public List<Rating> getRatings() {
-//
-//		return jdbc.query("select * from rating", new RatingRowMapper());
-//	}
-	
 	@SuppressWarnings("unchecked")
 	public List<Rating> getRatings() {
-		return session().createQuery("from Rating").list();
-	}
-
-	public List<Rating> getRatingsForAgent(int agentId) {
-
-		MapSqlParameterSource params = new MapSqlParameterSource("agentId",
-				agentId);
-		return jdbc.query("select * from rating where agentID = :agentId",
-				params, new RatingRowMapper());
-	}
-
-	public boolean create(Rating rating) {
-
-		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
-				rating);
-
-		return jdbc
-				.update("insert into rating (agentID, userID, rating) values (:agentID, :userID, :rating)",
-						params) == 1;
+		Criteria crit = session().createCriteria(Rating.class);
+		crit.createAlias("user", "u");
+		crit.add(Restrictions.eq("u.enabled", true));
+		return crit.list();
 	}
 	
-	public boolean update(Rating rating) {
-		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
-				rating);
-		
-		return jdbc.update("update rating set rating = :rating where id = :id", params) == 1;
+	@SuppressWarnings("unchecked")
+	public List<Rating> getRatingsForAgent(int agentId) {
+		Criteria crit = session().createCriteria(Rating.class);
+		crit.createAlias("user", "u");
+		crit.createAlias("agent", "a");
+		crit.add(Restrictions.eq("u.enabled", true));
+		crit.add(Restrictions.eq("a.id", agentId));
+		return crit.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Rating> getRatingsForUser(User user) {
+		Criteria crit = session().createCriteria(Rating.class);
+		crit.createAlias("user", "user");
+		crit.add(Restrictions.eq("user.id", user.getId()));
+		List<Rating> ratings = crit.list();
+		return ratings;
 	}
 
-	public boolean delete(int agentId, int userId) {
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("agentId", agentId);
-		params.addValue("userId", userId);
-
-		return jdbc.update("delete from rating where agentID=:agentId and userID=:userId", params) == 1;
+	public void saveOrUpdate(Rating rating) {
+		session().saveOrUpdate(rating);
 	}
 
-	public Rating getRating(int agentId, int userId) {
+	public boolean delete(int agentId, User user) {
+		Criteria crit = session().createCriteria(Rating.class);
+		crit.add(Restrictions.eq("agentID", agentId));
+		crit.add(Restrictions.eq("userID", user.getId()));
+		Query query = session().createQuery("delete from Rating where agentID = :agentId and userID = :userId");
+		query.setLong("agentId",agentId);
+		query.setLong("userId", user.getId());
+		return query.executeUpdate() == 1;
 
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("agentid", agentId);
-		params.addValue("userid", userId);
-
-		return jdbc.queryForObject("select * from rating where agentid=:agentid and userid=:userid", params,
-				new RatingRowMapper());
+		//		MapSqlParameterSource params = new MapSqlParameterSource();
+//		params.addValue("agentId", agentId);
+//		params.addValue("userId", user.getId());
+//
+//		return jdbc.update("delete from rating where agentID=:agentId and userID=:userId", params) == 1;
 	}
 
-	public List<Rating> getRatingsForUser(int userId) {
-		return jdbc.query("select * from rating where userID = :userId",
-				new MapSqlParameterSource("userId", userId),
-				new RatingRowMapper());
+	public Rating getRating(int agentId, User user) {
+		Criteria crit = session().createCriteria(Rating.class);
+		crit.createAlias("user", "user");
+		crit.add(Restrictions.eq("agentID", agentId));
+		crit.add(Restrictions.eq("user.id", user.getId()));
+		Rating rating = (Rating) crit.uniqueResult();
+		return rating;
 	}
+
 
 
 }

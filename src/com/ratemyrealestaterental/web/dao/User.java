@@ -38,7 +38,6 @@ public class User {
 	
 	public User(String username, String password, boolean enabled,
 			String authority) {
-//		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
@@ -114,8 +113,6 @@ public class User {
 			return false;
 		if (enabled != other.enabled)
 			return false;
-//		if (id != other.id)
-//			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;

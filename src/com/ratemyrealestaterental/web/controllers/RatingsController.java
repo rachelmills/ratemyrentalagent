@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ratemyrealestaterental.web.dao.Agent;
 import com.ratemyrealestaterental.web.dao.Rating;
+import com.ratemyrealestaterental.web.dao.User;
 import com.ratemyrealestaterental.web.service.AgentsService;
 import com.ratemyrealestaterental.web.service.RatingsService;
 import com.ratemyrealestaterental.web.service.UsersService;
@@ -38,7 +39,7 @@ public class RatingsController {
 		int sum = 0;
 		int count = 0;
 		for (Rating rating : ratings) {
-			rating.setAgent(agentsService.getAgent(id));
+//			rating.setAgent(agentsService.getAgent(id));
 			count++;
 			sum += rating.getRating();
 		}
@@ -57,8 +58,9 @@ public class RatingsController {
 		List<Rating> ratings = ratingsService.getRatingsForUser(id);
 
 		for (Rating rating : ratings) {
-			Agent agent = agentsService.getAgent(rating.getAgentID());
-			rating.setAgent(agent);
+//			Agent agent = agentsService.getAgent(rating.getAgentID());
+//			Agent agent = agentsService.getAgent(rating.getAgent().getId());
+//			rating.setAgent(agent);
 		}
 
 		model.addAttribute("ratings", ratings);
@@ -88,8 +90,10 @@ public class RatingsController {
 
 	@RequestMapping(value = "/docreate", method = RequestMethod.POST)
 	public String doCreate(Rating rating, Principal principal, @RequestParam(value="edit", required=false) String edit, @RequestParam(value="ratingID", required=false) Integer ratingId) {
+		rating.setUser(new User());
 		String username = principal.getName();
-		rating.setUserID(usersService.getUserId(username));
+		int id = usersService.getUserId(username);
+		rating.getUser().setId(id);
 		if (edit == null) {
 			ratingsService.createRating(rating);
 			return "ratingcreated";

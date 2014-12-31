@@ -35,16 +35,24 @@
 				<props>
 					<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
 					<!-- Hibernate properties for using a validation group -->
-					<prop key="javax.persistence.validation.group.pre-persist">com.ratemyrealestaterental.web.dao.PersistenceValidationGroup</prop>
-					<prop key="javax.persistence.validation.group.pre-update">com.ratemyrealestaterental.web.dao.PersistenceValidationGroup</prop>
-					<prop key="javax.persistence.validation.group.pre-remove">com.ratemyrealestaterental.web.dao.PersistenceValidationGroup</prop>
+					<prop key="javax.persistence.validation.group.pre-persist">com.ratemyrealestaterental.web.dao.PersistenceValidationGroup
+					</prop>
+					<prop key="javax.persistence.validation.group.pre-update">com.ratemyrealestaterental.web.dao.PersistenceValidationGroup
+					</prop>
+					<prop key="javax.persistence.validation.group.pre-remove">com.ratemyrealestaterental.web.dao.PersistenceValidationGroup
+					</prop>
 				</props>
 			</property>
 			<property name="packagesToScan">
-			<list>
-				<value>com.ratemyrealestaterental.web.dao</value>
-			</list>
+				<list>
+					<value>com.ratemyrealestaterental.web.dao</value>
+				</list>
 			</property>
 		</bean>
+		<!--  This will translate hibernate exceptions into spring exceptions - uses @Repository annotation -->
+		<bean id="exceptionTranslator"
+			class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor">
+		</bean>
 	</beans>
+
 </beans>

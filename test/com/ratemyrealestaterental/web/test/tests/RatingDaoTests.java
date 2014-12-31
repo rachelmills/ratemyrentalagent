@@ -17,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.ratemyrealestaterental.web.dao.Agent;
+import com.ratemyrealestaterental.web.dao.AgentsDAO;
 import com.ratemyrealestaterental.web.dao.Rating;
 import com.ratemyrealestaterental.web.dao.RatingsDAO;
 import com.ratemyrealestaterental.web.dao.User;
@@ -32,6 +34,9 @@ public class RatingDaoTests {
 
 	@Autowired
 	private RatingsDAO ratingsDao;
+	
+	@Autowired
+	private AgentsDAO agentsDao;
 
 	@Autowired
 	private UsersDAO usersDao;
@@ -39,39 +44,54 @@ public class RatingDaoTests {
 	@Autowired
 	private DataSource dataSource;
 
+	private int agentId = 1;
+	private int rating = 1;
+	private int userId = 0;
+	private User user1;
+	private User user2;
+	private User user3;
+	private Agent agent1;
+	private Agent agent2;
+	
+	
 	@Before
 	public void init() {
 		JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 		jdbc.execute("delete from rating");
 		jdbc.execute("delete from user");
+		user1 = new User("rachel1", "hello", true, "user");
+		user2 = new User("rachel2", "hello", true, "user");
+		user3 = new User("rachel3", "hello", false, "user");
+		agent1 = new Agent("Ray White", "Nundah");
+		agent2 = new Agent("Harcourts", "Inner City");
+		usersDao.create(user1);
+		usersDao.create(user2);
+		usersDao.create(user3);
+		agentsDao.create(agent1);
+		user2.setId(usersDao.getUserIdByUsername("rachel2"));
+		userId = usersDao.getUserIdByUsername("rachel1");
+		user1.setId(userId);
+		user3.setId(usersDao.getUserIdByUsername("rachel3"));
+		
+		
 	}
 
 	@Test
 	public void testCreateRating() {
-		usersDao.create(new User("rachel1", "hello", true, "user"));
-
-		int agentId = 1;
-		int rating = 1;
-		int userId = usersDao.getUserIdByUsername("rachel1");
-
-		Rating rating1 = new Rating(agentId, userId, rating);
-
-		assertTrue(ratingsDao.create(rating1));
+		Rating rating1 = new Rating(agent1, user1, rating);
+		ratingsDao.saveOrUpdate(rating1);
+		assertEquals(1, ratingsDao.getRatings().size());
 	}
 
 	@Test
 	public void testGetRatings() {
-		usersDao.create(new User("rachel1", "hello", true, "user"));
-		int agentId = 1;
-		int rating = 1;
+		Rating rating1 = new Rating(agent1, user1, rating);
+		Rating rating2 = new Rating(agent2, user1, rating + 1);
+		Rating rating3 = new Rating(agent1, user3, rating);
 
-		Rating rating1 = new Rating(agentId,
-				usersDao.getUserIdByUsername("rachel1"), rating);
-		Rating rating2 = new Rating(agentId + 1,
-				usersDao.getUserIdByUsername("rachel1"), rating + 1);
-
-		ratingsDao.create(rating1);
-		ratingsDao.create(rating2);
+		ratingsDao.saveOrUpdate(rating1);
+		ratingsDao.saveOrUpdate(rating2);
+		ratingsDao.saveOrUpdate(rating3);
 
 		List<Rating> ratings = ratingsDao.getRatings();
 
@@ -79,22 +99,65 @@ public class RatingDaoTests {
 	}
 	
 	@Test
+	public void testGetRatingsWhenNoRatingsExist() {
+		List<Rating> ratings = ratingsDao.getRatings();
+		assertEquals(0, ratings.size());
+	}
+	
+	@Test
+	public void testGetRatingsForAgent() {
+		Rating rating1 = new Rating(agent1, user1, rating);
+		Rating rating2 = new Rating(agent1, user2, rating + 1);
+		ratingsDao.saveOrUpdate(rating1);
+		ratingsDao.saveOrUpdate(rating2);
+		List<Rating> ratings = ratingsDao.getRatingsForAgent(agent1.getId());
+		assertTrue(ratings.size() == 2);
+	}
+	
+	@Test
+	public void testGetRating() {
+		Rating rating1 = new Rating(agent1, user1, rating);
+		ratingsDao.saveOrUpdate(rating1);
+		Rating rating = ratingsDao.getRating(agentId, user1);
+		assertEquals(rating1, rating);
+	}
+	
+	@Test
+	public void testGetRatingWhenNoRatingsExist() {
+		Rating rating = ratingsDao.getRating(agentId, usersDao.getUser(userId));
+		assertNull(rating);
+	}
+	
+	@Test
+	public void testGetRatingsForUser() {
+		Rating rating1 = new Rating(agent1, user1, rating);
+		Rating rating2 = new Rating(agent2, user1, rating + 1);
+		ratingsDao.saveOrUpdate(rating1);
+		ratingsDao.saveOrUpdate(rating2);
+		List<Rating> ratings = ratingsDao.getRatingsForUser(user1);
+		assertTrue(ratings.size() == 2);
+	}
+	
+	@Test
+	public void testUpdateRating() {
+		Rating rating1 = new Rating(agent1, user1, rating);
+		ratingsDao.saveOrUpdate(rating1);
+		assertTrue(ratingsDao.getRating(agentId, user1).getRating() == 1);
+		rating1.setRating(2);
+		ratingsDao.saveOrUpdate(rating1);
+		assertTrue(ratingsDao.getRating(agentId, user1).getRating() == 2);		
+	}
+	
+	@Test
 	public void testDeleteRating() {
-		usersDao.create(new User("rachel1", "hello", true, "user"));
+		Rating rating1 = new Rating(agent1, user1, rating);
+		ratingsDao.saveOrUpdate(rating1);
 		
-		int agentId = 1;
-		int ratingId = 1;
-		
-		int userId = usersDao.getUserIdByUsername("rachel1");
-
-		Rating rating1 = new Rating(agentId, userId, ratingId);
-		assertTrue(ratingsDao.create(rating1));
-		
-		Rating ratings = ratingsDao.getRating(agentId, userId);
+		Rating ratings = ratingsDao.getRating(agentId, user1);
 
 		assertTrue(ratings.getRating() == 1);
 		
-		assertTrue(ratingsDao.delete(agentId, userId));
+		assertTrue(ratingsDao.delete(agentId, user1));
 	}
 
 }

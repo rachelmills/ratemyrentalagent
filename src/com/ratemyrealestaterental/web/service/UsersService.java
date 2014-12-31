@@ -15,7 +15,7 @@ public class UsersService {
 	private UsersDAO usersDAO;
 
 	public List<User> getCurrent() {
-		return usersDAO.getUsers();
+		return usersDAO.getAllUsers();
 	}
 
 	@Autowired
