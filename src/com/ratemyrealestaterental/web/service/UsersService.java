@@ -14,15 +14,19 @@ public class UsersService {
 	
 	private UsersDAO usersDAO;
 
-	public List<User> getCurrent() {
-		return usersDAO.getAllUsers();
-	}
-
 	@Autowired
 	public void setUsersDAO(UsersDAO usersDAO) {
 		this.usersDAO = usersDAO;
 	}
 	
+	public List<User> getCurrent() {
+		return usersDAO.getAllUsers();
+	}
+	
+	public User getUser(int userId) {
+		return usersDAO.getUser(userId);
+	}
+
 	public void createUser(User user) {
 		usersDAO.create(user);
 	}

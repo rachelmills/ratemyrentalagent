@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ratemyrealestaterental.web.dao.Agent;
 import com.ratemyrealestaterental.web.dao.Rating;
-import com.ratemyrealestaterental.web.dao.User;
 import com.ratemyrealestaterental.web.service.AgentsService;
 import com.ratemyrealestaterental.web.service.RatingsService;
 import com.ratemyrealestaterental.web.service.UsersService;
@@ -39,7 +38,7 @@ public class RatingsController {
 		int sum = 0;
 		int count = 0;
 		for (Rating rating : ratings) {
-//			rating.setAgent(agentsService.getAgent(id));
+			rating.setAgent(agentsService.getAgent(id));
 			count++;
 			sum += rating.getRating();
 		}
@@ -58,9 +57,8 @@ public class RatingsController {
 		List<Rating> ratings = ratingsService.getRatingsForUser(id);
 
 		for (Rating rating : ratings) {
-//			Agent agent = agentsService.getAgent(rating.getAgentID());
-//			Agent agent = agentsService.getAgent(rating.getAgent().getId());
-//			rating.setAgent(agent);
+			Agent agent = agentsService.getAgent(rating.getAgent().getId());
+			rating.setAgent(agent);
 		}
 
 		model.addAttribute("ratings", ratings);
@@ -89,19 +87,17 @@ public class RatingsController {
 	}
 
 	@RequestMapping(value = "/docreate", method = RequestMethod.POST)
-	public String doCreate(Rating rating, Principal principal, @RequestParam(value="edit", required=false) String edit, @RequestParam(value="ratingID", required=false) Integer ratingId) {
-		rating.setUser(new User());
+	public String doCreate(Rating rating, Principal principal, @RequestParam(value="edit", required=false) String edit, @RequestParam(value="ratingID", required=false) Integer ratingId, @RequestParam(value="agentID") Integer agentId, Model model) {
+		model.addAttribute("edit", edit); 
+		rating.setAgent(agentsService.getAgent(agentId));
 		String username = principal.getName();
-		int id = usersService.getUserId(username);
-		rating.getUser().setId(id);
-		if (edit == null) {
-			ratingsService.createRating(rating);
-			return "ratingcreated";
-		} else {
+		int userId = usersService.getUserId(username);
+		rating.setUser(usersService.getUser(userId));
+		if (edit != null) {
 			rating.setId(ratingId);
-			ratingsService.updateRating(rating);
-			return "ratingupdated";
 		}
+		ratingsService.saveOrUpdate(rating);
+		return "ratingcreated";
 	}
 	
 	@RequestMapping("/editrating")

@@ -65,5 +65,4 @@ public class UsersDAO {
 	public List<User> getAllUsers() {
 		return session().createQuery("from User").list();
 	}
-
 }

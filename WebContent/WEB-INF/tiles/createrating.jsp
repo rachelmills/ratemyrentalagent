@@ -40,7 +40,7 @@
 				</table>
 				<input type="hidden" name="agentID" value="${agent.id}"> 
 				<input type="hidden" name="ratingID" value="${rating.id}">
-				<%-- 	<input type="hidden" name="userID" value="${user.id}"> --%>
+				<input type="hidden" name="userID" value="${user.id}">
 				<c:if test="${rating.id eq null}">
 					<input type="submit" value="RATE AGENT">
 				</c:if>

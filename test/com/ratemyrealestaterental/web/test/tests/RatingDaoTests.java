@@ -44,7 +44,6 @@ public class RatingDaoTests {
 	@Autowired
 	private DataSource dataSource;
 
-	private int agentId = 1;
 	private int rating = 1;
 	private int userId = 0;
 	private User user1;
@@ -68,12 +67,11 @@ public class RatingDaoTests {
 		usersDao.create(user2);
 		usersDao.create(user3);
 		agentsDao.create(agent1);
-		user2.setId(usersDao.getUserIdByUsername("rachel2"));
-		userId = usersDao.getUserIdByUsername("rachel1");
+		agentsDao.create(agent2);
+		user2.setId(usersDao.getUserIdByUsername(user2.getUsername()));
+		userId = usersDao.getUserIdByUsername(user1.getUsername());
 		user1.setId(userId);
-		user3.setId(usersDao.getUserIdByUsername("rachel3"));
-		
-		
+		user3.setId(usersDao.getUserIdByUsername(user3.getUsername()));	
 	}
 
 	@Test
@@ -118,13 +116,13 @@ public class RatingDaoTests {
 	public void testGetRating() {
 		Rating rating1 = new Rating(agent1, user1, rating);
 		ratingsDao.saveOrUpdate(rating1);
-		Rating rating = ratingsDao.getRating(agentId, user1);
+		Rating rating = ratingsDao.getRating(agent1.getId(), user1);
 		assertEquals(rating1, rating);
 	}
 	
 	@Test
 	public void testGetRatingWhenNoRatingsExist() {
-		Rating rating = ratingsDao.getRating(agentId, usersDao.getUser(userId));
+		Rating rating = ratingsDao.getRating(agent1.getId(), usersDao.getUser(userId));
 		assertNull(rating);
 	}
 	
@@ -142,10 +140,10 @@ public class RatingDaoTests {
 	public void testUpdateRating() {
 		Rating rating1 = new Rating(agent1, user1, rating);
 		ratingsDao.saveOrUpdate(rating1);
-		assertTrue(ratingsDao.getRating(agentId, user1).getRating() == 1);
+		assertTrue(ratingsDao.getRating(agent1.getId(), user1).getRating() == 1);
 		rating1.setRating(2);
 		ratingsDao.saveOrUpdate(rating1);
-		assertTrue(ratingsDao.getRating(agentId, user1).getRating() == 2);		
+		assertTrue(ratingsDao.getRating(agent1.getId(), user1).getRating() == 2);		
 	}
 	
 	@Test
@@ -153,11 +151,12 @@ public class RatingDaoTests {
 		Rating rating1 = new Rating(agent1, user1, rating);
 		ratingsDao.saveOrUpdate(rating1);
 		
-		Rating ratings = ratingsDao.getRating(agentId, user1);
+		Rating ratings = ratingsDao.getRating(agent1.getId(), user1);
 
 		assertTrue(ratings.getRating() == 1);
+		assertTrue(ratingsDao.delete(agent1.getId(), user1));
 		
-		assertTrue(ratingsDao.delete(agentId, user1));
+		Rating rating = ratingsDao.getRating(agent1.getId(), user1);
+		assertNull("rating should be null", rating);
 	}
-
 }

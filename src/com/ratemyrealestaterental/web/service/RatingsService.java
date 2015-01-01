@@ -23,7 +23,7 @@ public class RatingsService {
 	}
 
 	@Secured({ "ROLE_USER", "ROLE_ADMIN" })
-	public void createRating(Rating rating) {
+	public void saveOrUpdate(Rating rating) {
 		ratingsDAO.saveOrUpdate(rating);
 	}
 
@@ -53,10 +53,6 @@ public class RatingsService {
 			return false;
 		}
 		return true;
-	}
-
-	public void updateRating(Rating rating) {
-		ratingsDAO.saveOrUpdate(rating);
 	}
 
 	@Autowired

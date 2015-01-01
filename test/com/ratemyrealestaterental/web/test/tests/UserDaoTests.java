@@ -93,8 +93,8 @@ public class UserDaoTests {
 	@Test
 	public void testGetUserById() {
 		usersDao.create(user1);
-		int userId = usersDao.getUserIdByUsername(user1.getUsername());
-		assertEquals(user1, usersDao.getUser(userId));
+		User user = usersDao.getUser(usersDao.getUserIdByUsername(user1.getUsername()));
+		assertEquals(user1, user);
 	}
 
 	@Test(expected = DataIntegrityViolationException.class)

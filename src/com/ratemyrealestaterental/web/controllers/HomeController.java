@@ -28,6 +28,7 @@ public class HomeController {
 	@RequestMapping("/")
 	public String showHome(HttpServletRequest request, Model model, Principal principal) {
 		boolean hasRatings = false;
+//		logger.log(null, "hi");
 		if (null != principal) {
 			hasRatings = ratingsService.hasRatings(principal.getName());
 			model.addAttribute("userid", usersService.getUserId(principal.getName()));

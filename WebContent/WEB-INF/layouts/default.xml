@@ -92,11 +92,6 @@
 		<put-attribute name="content" value="/WEB-INF/tiles/createblogentry.jsp"></put-attribute>
 	</definition>	
 	
-	<definition name="ratingupdated" extends="ratings.base">
-		<put-attribute name="title" value="Rating Updated"></put-attribute>
-		<put-attribute name="content" value="/WEB-INF/tiles/ratingupdated.jsp"></put-attribute>
-	 </definition>
-	 
 	 <definition name="ratingdeleted" extends="ratings.base">
 		<put-attribute name="title" value="Rating Deleted"></put-attribute>
 		<put-attribute name="content" value="/WEB-INF/tiles/ratingdeleted.jsp"></put-attribute>
