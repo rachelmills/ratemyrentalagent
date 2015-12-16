@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 // this annotation is to tell hibernate this is to be considered as a bean, 
 //and which table to map to with primary key
@@ -28,7 +29,15 @@ public class Rating {
 	@JoinColumn(name="agentID")
 	private Agent agent;
 	
+	@Transient
+	private boolean ratedByUser = false;
+	
 	public Rating() {
+	}
+	
+	public Rating(Agent agent, int rating) {
+		this.agent = agent;
+		this.rating = rating;
 	}
 
 	public Rating(Agent agent, User user, int rating) {
@@ -67,6 +76,14 @@ public class Rating {
 
 	public void setAgent(Agent agent) {
 		this.agent = agent;
+	}
+	
+	public boolean isRatedByUser() {
+		return ratedByUser;
+	}
+
+	public void setRatedByUser(boolean ratedByUser) {
+		this.ratedByUser = ratedByUser;
 	}
 
 	@Override

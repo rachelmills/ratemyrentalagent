@@ -28,6 +28,9 @@
 		<security:intercept-url pattern="/editrating" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/deleterating" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/test" access="isAuthenticated()"/>
+		<security:intercept-url pattern="/getRatings" access="isAuthenticated()"/>
+		<security:intercept-url pattern="/ratings1" access="isAuthenticated()"/>
+		<security:intercept-url pattern="/sendComment" access="isAuthenticated()"/>
 		<security:intercept-url pattern="/search" access="permitAll" />
 		<security:intercept-url pattern="/agents" access="permitAll" />
 		<security:intercept-url pattern="/about" access="permitAll"/>
@@ -39,6 +42,7 @@
 		<security:intercept-url pattern="/newuser" access="permitAll" />
 		<security:intercept-url pattern="/createuser" access="permitAll" />
 		<security:intercept-url pattern="/usercreated" access="permitAll" />
+		<security:intercept-url pattern="/allratings" access="permitAll"/>
 		<security:intercept-url pattern="/ratings" access="permitAll" />
 		<security:intercept-url pattern="/**" access="denyAll" />
 		<security:form-login login-page="/login"

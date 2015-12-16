@@ -39,6 +39,10 @@ public class RatingsService {
 		return ratingsDAO.getRating(agentId, usersDAO.getUser(userId));
 	}
 	
+	public List<Rating> getRatings() {
+		return ratingsDAO.getRatings();
+	}
+	
 	public boolean deleteRating(int agentId, int userId) {
 		return ratingsDAO.delete(agentId, usersDAO.getUser(userId));
 	}
@@ -55,6 +59,10 @@ public class RatingsService {
 		return true;
 	}
 
+	public boolean ratingExistsForUserAndAgent (int agentId, int userId) {
+		return ratingsDAO.ratingExistsForUserAndAgent(agentId, usersDAO.getUser(userId));
+	}
+	
 	@Autowired
 	public void setRatingsDAO(RatingsDAO ratingsDAO) {
 		this.ratingsDAO = ratingsDAO;

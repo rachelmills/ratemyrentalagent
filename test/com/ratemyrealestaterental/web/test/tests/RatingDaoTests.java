@@ -1,6 +1,7 @@
 package com.ratemyrealestaterental.web.test.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -75,12 +76,26 @@ public class RatingDaoTests {
 	}
 
 	@Test
-	public void testCreateRating() {
+	public void testCreateRating() throws Exception {
 		Rating rating1 = new Rating(agent1, user1, rating);
 		ratingsDao.saveOrUpdate(rating1);
 		assertEquals(1, ratingsDao.getRatings().size());
 	}
 
+	@Test
+	public void testShouldNotCreateDuplicateRatingForSameUserAndAgent() {
+		Rating rating1 = new Rating(agent1, user1, rating);
+		Rating rating2 = new Rating(agent1, user1, rating);
+		
+		ratingsDao.saveOrUpdate(rating1);
+		
+		try {
+			ratingsDao.saveOrUpdate(rating2);
+		} catch (org.hibernate.exception.ConstraintViolationException e) {
+			System.out.println("caught exception");
+		}	
+	}
+	
 	@Test
 	public void testGetRatings() {
 		Rating rating1 = new Rating(agent1, user1, rating);
@@ -127,6 +142,13 @@ public class RatingDaoTests {
 	}
 	
 	@Test
+	public void testGetRatingWithRatingId() {
+		Rating rating = ratingsDao.getRating(agent1.getId(), usersDao.getUser(userId));
+		int ratingId = rating.getId();
+		assertEquals(ratingsDao.getRatingById(ratingId),rating);
+	}
+	
+	@Test
 	public void testGetRatingsForUser() {
 		Rating rating1 = new Rating(agent1, user1, rating);
 		Rating rating2 = new Rating(agent2, user1, rating + 1);
@@ -158,5 +180,17 @@ public class RatingDaoTests {
 		
 		Rating rating = ratingsDao.getRating(agent1.getId(), user1);
 		assertNull("rating should be null", rating);
+	}
+	
+	@Test
+	public void testRatingExistsReturnsTrueWhenUserHasRatedAgent() {
+		Rating rating1 = new Rating(agent1, user1, rating);
+		ratingsDao.saveOrUpdate(rating1);
+		assertTrue(ratingsDao.ratingExistsForUserAndAgent(agent1.getId(), user1));
+	}
+	
+	@Test
+	public void testRatingExistsReturnsFalseWhenUserHasNotRatedAgent() {
+		assertFalse(ratingsDao.ratingExistsForUserAndAgent(agent1.getId(), user1));
 	}
 }

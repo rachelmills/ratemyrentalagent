@@ -33,7 +33,7 @@ public class RatingsController {
 
 	@RequestMapping("/ratings")
 	public String showRatingsForAgent(@RequestParam("agentid") int id,
-			Model model) {
+			Model model, Principal principal) {
 		List<Rating> ratings = ratingsService.getRatingsForAgent(id);
 		int sum = 0;
 		int count = 0;
@@ -43,12 +43,27 @@ public class RatingsController {
 			sum += rating.getRating();
 		}
 		double averageRating = getAverageRating(sum, count);
+		System.out.println("average rating = " + averageRating);
 		model.addAttribute("agentname", agentsService.getAgent(id).getAgentName());
 		model.addAttribute("agentsuburb", agentsService.getAgent(id).getSuburb());
 		model.addAttribute("ratings", ratings);
 		model.addAttribute("averageRating", averageRating);
 		model.addAttribute("id", id);
 		model.addAttribute("display", "agent");
+		return "ratings";
+	}
+	
+	@RequestMapping("/allratings")
+	public String showAllRatings(Model model, Principal principal) {
+		List<Rating> ratings = ratingsService.getRatings();
+		for (Rating rating : ratings) {
+			if (null != principal) {
+				rating.setRatedByUser(ratingsService.ratingExistsForUserAndAgent(rating.getAgent().getId(), usersService.getUserId(principal.getName())));
+			}
+			
+		}
+		model.addAttribute("ratings", ratings);
+		model.addAttribute("display", "all");	
 		return "ratings";
 	}
 
@@ -95,8 +110,13 @@ public class RatingsController {
 		rating.setUser(usersService.getUser(userId));
 		if (edit != null) {
 			rating.setId(ratingId);
+			ratingsService.saveOrUpdate(rating);
+		} else {
+			if (ratingsService.hasRatings(username)) {
+				model.addAttribute("edit", "Confirm edit");
+			}
+			ratingsService.saveOrUpdate(rating);	
 		}
-		ratingsService.saveOrUpdate(rating);
 		return "ratingcreated";
 	}
 	

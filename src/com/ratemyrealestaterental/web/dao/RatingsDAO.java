@@ -7,6 +7,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -30,6 +31,13 @@ public class RatingsDAO {
 		crit.createAlias("user", "u");
 		crit.add(Restrictions.eq("u.enabled", true));
 		return crit.list();
+	}
+	
+	public Rating getRatingById(int ratingId) {
+		Criteria crit = session().createCriteria(Rating.class);
+		crit.add(Restrictions.idEq(ratingId));
+		Rating rating = (Rating) crit.uniqueResult();
+		return rating;
 	}
 
 	public Rating getRating(int agentId, User user) {
@@ -61,7 +69,8 @@ public class RatingsDAO {
 		return ratings;
 	}
 
-	public void saveOrUpdate(Rating rating) {
+	public void saveOrUpdate(Rating rating) throws ConstraintViolationException {
+//		if (getRating(rating.getId()).)
 		session().saveOrUpdate(rating);
 	}
 
@@ -76,4 +85,10 @@ public class RatingsDAO {
 		query.setLong("userId", user.getId());
 		return query.executeUpdate() == 1;
 	}
+	
+	public boolean ratingExistsForUserAndAgent(int agentId, User user) {
+		return getRating(agentId, user) == null ? false : true;
+	}
+
+
 }
